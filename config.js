@@ -6,7 +6,7 @@
  */
 export const CONFIG = {
   // Paste your OAuth 2.0 Web Client ID here (ends in .apps.googleusercontent.com)
-  GOOGLE_CLIENT_ID: "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com",
+  GOOGLE_CLIENT_ID: "1018612758154-qeatqph1h89q7959nns4mkt88e3d845e.apps.googleusercontent.com",
 
   // Least-privilege scope: only files this app creates/opens. No access to the
   // rest of the user's Drive.
