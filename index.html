@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MARS JARVIS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2304060b%22 stroke=%22%2300e5ff%22 stroke-width=%224%22/><circle cx=%2250%22 cy=%2250%22 r=%2222%22 fill=%22none%22 stroke=%22%2300e5ff%22 stroke-width=%226%22/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="login-screen" class="login-screen">
+  <div class="login-panel glass-panel">
+    <div class="bracket bracket-tl"></div>
+    <div class="bracket bracket-br"></div>
+    <div class="reactor-mini" aria-hidden="true">
+      <div class="reactor-ring r1"></div>
+      <div class="reactor-ring r2"></div>
+      <div class="reactor-core"></div>
+    </div>
+    <h1 class="brand-title">MARS <span>JARVIS</span></h1>
+    <p class="brand-sub">Personal AI Operating System — Phase I</p>
+
+    <div id="config-warning" class="config-warning hidden">
+      <strong>Setup needed:</strong> add your Google OAuth Client ID in
+      <code>js/config.js</code> before signing in. See README.md.
+    </div>
+
+    <div id="google-signin-btn" class="google-btn-mount"></div>
+
+    <p class="login-hint">Sign in with Google to connect Drive storage.<br />All memory is stored only in your own Drive.</p>
+  </div>
+</div>
+
+<!-- ================= APP SHELL ================= -->
+<div id="app-shell" class="app-shell hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="reactor-mini small" aria-hidden="true">
+        <div class="reactor-ring r1"></div>
+        <div class="reactor-core"></div>
+      </div>
+      <span class="sidebar-brand-text">MARS<br /><b>JARVIS</b></span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item is-active" data-section="home">
+        <span class="nav-icon">⌂</span><span>Home</span>
+      </button>
+      <button class="nav-item" data-section="memory">
+        <span class="nav-icon">▤</span><span>Memory</span>
+      </button>
+      <button class="nav-item" data-section="tasks">
+        <span class="nav-icon">☑</span><span>Tasks</span>
+      </button>
+      <button class="nav-item" data-section="voice">
+        <span class="nav-icon">◉</span><span>Voice Console</span>
+      </button>
+      <button class="nav-item" data-section="settings">
+        <span class="nav-icon">⚙</span><span>Settings</span>
+      </button>
+    </nav>
+
+    <div id="user-chip" class="user-chip hidden">
+      <img id="user-avatar" src="" alt="" />
+      <span id="user-name"></span>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Top bar -->
+    <header class="topbar glass-panel">
+      <div class="topbar-status">
+        <span id="connection-badge" class="badge" data-status="offline">DRIVE OFFLINE</span>
+      </div>
+      <div class="topbar-clock">
+        <div id="hud-clock" class="hud-clock">00:00:00</div>
+        <div id="hud-date" class="hud-date">—</div>
+      </div>
+    </header>
+
+    <!-- ===== HOME ===== -->
+    <section id="section-home" class="section is-active">
+      <div class="home-grid">
+
+        <div class="glass-panel reactor-panel">
+          <div class="bracket bracket-tl"></div><div class="bracket bracket-br"></div>
+          <div id="mic-orb" class="mic-orb" data-state="muted">
+            <div class="mic-ring ring-outer"></div>
+            <div class="mic-ring ring-mid"></div>
+            <div class="mic-core"></div>
+          </div>
+          <div id="mic-state-label" class="mic-state-label">MUTED</div>
+          <div class="reactor-actions">
+            <button id="btn-mute" class="hud-btn">UNMUTE</button>
+            <button id="btn-ptt" class="hud-btn hud-btn--gold">HOLD TO TALK</button>
+          </div>
+          <div id="live-transcript" class="live-transcript">Say “Jarvis” to begin.</div>
+        </div>
+
+        <div class="glass-panel stats-panel" id="dashboard-stats">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">System Overview</h2>
+          <div class="stats-row">
+            <div class="stat-block">
+              <div class="stat-value" data-stat="notes">0</div>
+              <div class="stat-label">Notes</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value" data-stat="tasks">0</div>
+              <div class="stat-label">Open Tasks</div>
+            </div>
+            <div class="stat-block">
+              <div class="stat-value" data-stat="conversations">0</div>
+              <div class="stat-label">Commands Logged</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel activity-panel">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">Recent Activity</h2>
+          <div id="activity-feed" class="activity-feed"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== MEMORY ===== -->
+    <section id="section-memory" class="section">
+      <div class="glass-panel">
+        <div class="bracket bracket-tl"></div>
+        <h2 class="panel-title">Memory — Notes</h2>
+
+        <form id="note-form" class="inline-form">
+          <input id="note-input" type="text" placeholder="Write a new note…" autocomplete="off" />
+          <button type="submit" class="hud-btn">Save Note</button>
+        </form>
+        <input id="note-search" type="text" class="search-input" placeholder="Search notes…" autocomplete="off" />
+
+        <div id="notes-list" class="record-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== TASKS ===== -->
+    <section id="section-tasks" class="section">
+      <div class="glass-panel">
+        <div class="bracket bracket-tl"></div>
+        <h2 class="panel-title">Tasks</h2>
+
+        <form id="task-form" class="inline-form">
+          <input id="task-input" type="text" placeholder="Add a task…" autocomplete="off" />
+          <select id="task-priority" class="priority-select">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button type="submit" class="hud-btn">Add Task</button>
+        </form>
+
+        <div id="tasks-list" class="task-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== VOICE CONSOLE ===== -->
+    <section id="section-voice" class="section">
+      <div class="voice-grid">
+        <div class="glass-panel voice-main-panel">
+          <div class="bracket bracket-tl"></div><div class="bracket bracket-br"></div>
+          <h2 class="panel-title">Voice Console</h2>
+          <p class="panel-sub">Wake word: <strong>“Jarvis”</strong> · Continuous listening active</p>
+
+          <div id="mic-orb-2" class="mic-orb large" data-state="muted">
+            <div class="mic-ring ring-outer"></div>
+            <div class="mic-ring ring-mid"></div>
+            <div class="mic-core"></div>
+          </div>
+          <div id="mic-state-label-2" class="mic-state-label">MUTED</div>
+
+          <div class="reactor-actions">
+            <button id="btn-mute-2" class="hud-btn">UNMUTE</button>
+            <button id="btn-ptt-2" class="hud-btn hud-btn--gold">HOLD TO TALK</button>
+          </div>
+          <div id="live-transcript-2" class="live-transcript">Say “Jarvis” to begin.</div>
+        </div>
+
+        <div class="glass-panel command-log-panel">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">Command History</h2>
+          <div id="conversation-log" class="conversation-log"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section id="section-settings" class="section">
+      <div class="settings-grid">
+
+        <div class="glass-panel">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">Account</h2>
+          <div class="settings-row">
+            <span>Name</span><span id="settings-account-name">—</span>
+          </div>
+          <div class="settings-row">
+            <span>Email</span><span id="settings-account-email">—</span>
+          </div>
+          <div class="settings-row">
+            <span>Storage</span><span>Google Drive — /MARS-JARVIS/jarvis-data.json</span>
+          </div>
+          <button id="btn-signout" class="hud-btn hud-btn--danger">Sign Out</button>
+        </div>
+
+        <div class="glass-panel">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">Voice</h2>
+          <div class="settings-row">
+            <span>Wake word</span><span id="settings-wakeword">“jarvis”</span>
+          </div>
+          <label class="field-label">Voice</label>
+          <select id="settings-voice" class="priority-select full"></select>
+          <label class="field-label">Rate <span id="rate-val"></span></label>
+          <input id="settings-rate" type="range" min="0.5" max="2" step="0.1" value="1" />
+          <label class="field-label">Pitch <span id="pitch-val"></span></label>
+          <input id="settings-pitch" type="range" min="0" max="2" step="0.1" value="1" />
+          <label class="field-label checkbox-label">
+            <input id="settings-continuous" type="checkbox" checked /> Continuous listening
+          </label>
+        </div>
+
+        <div class="glass-panel">
+          <div class="bracket bracket-tl"></div>
+          <h2 class="panel-title">Data</h2>
+          <p class="panel-sub">Your data lives only in your Google Drive. Nothing is sent anywhere else.</p>
+          <button id="btn-export" class="hud-btn">Export jarvis-data.json</button>
+          <button id="btn-clear" class="hud-btn hud-btn--danger">Clear All Data</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
