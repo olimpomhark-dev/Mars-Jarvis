@@ -10,7 +10,7 @@
 import { CONFIG } from "./config.js";
 
 export function isBrainConfigured() {
-  return !!CONFIG.BRAIN_ENDPOINT && !CONFIG.BRAIN_ENDPOINT.startsWith("PASTE_");
+  
 }
 
 /**
@@ -20,7 +20,7 @@ export function isBrainConfigured() {
  */
 export async function askBrain(message, memoryData) {
   if (!isBrainConfigured()) {
-    return { action: "chat", reply: "DEBUG: " + (e && e.message ? e.message : String(e)) };
+    return { action: "chat", reply: "I could not reach my reasoning module just now." };
   }
 
   const context = {
