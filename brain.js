@@ -20,7 +20,7 @@ export function isBrainConfigured() {
  */
 export async function askBrain(message, memoryData) {
   if (!isBrainConfigured()) {
-    return { action: "chat", reply: "My reasoning module isn't connected yet. Check Settings." };
+    return { action: "chat", reply: "DEBUG: " + (e && e.message ? e.message : String(e)) };
   }
 
   const context = {
