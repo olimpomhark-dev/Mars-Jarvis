@@ -11,8 +11,10 @@ import * as Auth from "./auth.js";
 import * as Drive from "./drive.js";
 import { memory, defaultData } from "./memory.js";
 import { voiceEngine, VoiceState } from "./voice.js";
-import { interpretCommand } from "./commands.js";
+import { interpretCommand, applyBrainAction } from "./commands.js";
+import { askBrain } from "./brain.js";
 import * as UI from "./ui.js";
+import { isBrainConfigured } from "./brain.js";
 
 // ---------- DOM refs ----------
 const $ = (sel) => document.querySelector(sel);
@@ -196,11 +198,23 @@ voiceEngine.on((event, payload) => {
 });
 updateMicUI(voiceEngine.state);
 
-function handleVoiceCommand(rawText) {
-  const result = interpretCommand(rawText);
-  memory.logConversation(rawText, result.text);
-  voiceEngine.speak(result.text);
-  liveTranscripts.forEach((el) => el && (el.textContent = `“${rawText}” → ${result.text}`));
+async function handleVoiceCommand(rawText) {
+  const local = interpretCommand(rawText);
+
+  if (local.action !== "unknown") {
+    memory.logConversation(rawText, local.text);
+    voiceEngine.speak(local.text);
+    liveTranscripts.forEach((el) => el && (el.textContent = `“${rawText}” → ${local.text}`));
+    return;
+  }
+
+  // Not a recognized fixed phrasing — hand it to the brain.
+  liveTranscripts.forEach((el) => el && (el.textContent = `“${rawText}” → thinking…`));
+  const parsed = await askBrain(rawText, memory.data);
+  const replyText = applyBrainAction(parsed);
+  memory.logConversation(rawText, replyText);
+  voiceEngine.speak(replyText);
+  liveTranscripts.forEach((el) => el && (el.textContent = `“${rawText}” → ${replyText}`));
 }
 
 muteButtons.forEach((btn) => btn && btn.addEventListener("click", () => voiceEngine.toggleMute()));
@@ -274,6 +288,10 @@ function pushVoicePrefs() {
 
 function applySettingsToUI() {
   settingsWakeWord.textContent = `“${memory.data.settings.wakeWord}”`;
+  const brainStatus = $("#settings-brain-status");
+  if (brainStatus) {
+    brainStatus.textContent = isBrainConfigured() ? "Connected" : "Not connected";
+  }
   settingsRate.value = memory.data.settings.voiceRate;
   settingsPitch.value = memory.data.settings.voicePitch;
   $("#rate-val").textContent = settingsRate.value;

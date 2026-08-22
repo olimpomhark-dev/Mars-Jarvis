@@ -119,5 +119,49 @@ export function interpretCommand(raw) {
   }
 
   // ---------- Fallback ----------
-  return respond("I didn't catch a command in that. Try saving a note or adding a task.", { action: "unknown" });
+  return respond("__UNMATCHED__", { action: "unknown" });
+}
+
+/**
+ * Executes an action decided by the brain (js/brain.js) against memory,
+ * the same way interpretCommand does for locally-recognized phrasings.
+ * Falls back to whatever `reply` the brain already wrote if the action
+ * is just conversational or unrecognized.
+ */
+export function applyBrainAction(parsed) {
+  const fallbackReply = parsed.reply || "Okay.";
+  try {
+    switch (parsed.action) {
+      case "create_note": {
+        if (!parsed.text) return fallbackReply;
+        memory.createNote(parsed.text);
+        return fallbackReply;
+      }
+      case "add_task": {
+        if (!parsed.text) return fallbackReply;
+        memory.addTask(parsed.text, parsed.priority || "medium");
+        return fallbackReply;
+      }
+      case "complete_task": {
+        const task = parsed.text ? memory.findTaskByText(parsed.text) : null;
+        if (task) memory.completeTask(task.id);
+        return fallbackReply;
+      }
+      case "delete_task": {
+        const task = parsed.text ? memory.findTaskByText(parsed.text) : null;
+        if (task) memory.deleteTask(task.id);
+        return fallbackReply;
+      }
+      case "search_notes": {
+        // brain already summarized the answer into `reply`; nothing else to do
+        return fallbackReply;
+      }
+      case "chat":
+      default:
+        return fallbackReply;
+    }
+  } catch (e) {
+    console.error("applyBrainAction error:", e);
+    return fallbackReply;
+  }
 }
