@@ -67,7 +67,16 @@ class VoiceEngine {
       const result = event.results[event.results.length - 1];
       const transcript = result[0].transcript.trim();
       this._emit("transcript", { text: transcript, final: result.isFinal });
-      if (!result.isFinal) return;
+
+      if (!result.isFinal) {
+        // React to the wake word the instant it's heard, even mid-sentence,
+        // instead of waiting for the browser to decide you've stopped talking.
+        if (this.state === VoiceState.IDLE && transcript.toLowerCase().includes(this.wakeWord)) {
+          this._setState(VoiceState.WAKE_HEARD);
+          this._emit("wake");
+        }
+        return;
+      }
       this._handleFinalTranscript(transcript);
     };
 
