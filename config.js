@@ -7,7 +7,7 @@ export const CONFIG = {
 
   DRIVE_SCOPE: "https://www.googleapis.com/auth/drive.file",
 
-  BRAIN_ENDPOINT: "https://yhanzyfaith.olimpomhark.workers.dev",
+  BRAIN_ENDPOINT: "https://yhanzyfaithconstate.olimpomhark.workers.dev",
 
   DRIVE_FOLDER_NAME: "MARS-JARVIS",
   DRIVE_FILE_NAME: "jarvis-data.json",
